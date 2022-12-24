@@ -1,0 +1,18 @@
+# Default variables
+aws_region = "us-west-2"
+
+# Cluster variables.
+vpc_id                      = "vpc-068326f7bc95c13c5"
+eks_cluster_subnet_ids      = ["subnet-0b1d60f6775e82b4f", "subnet-0870552e36549af30", "subnet-02ecb172c3e24a9b5", "subnet-0657e800d9ce65e2b"]
+eks_cluster_name            = "demo-eks-cluster"
+eks_cluster_role_name       = "test-demo-cluster-role"
+kubernetes_version          = "1.24"
+esk_cluster_default_sg_name = "eks-cluster-default-sg"
+
+# Worker nodes variables.
+node_group_name_prefix    = "demo"
+eks_worker_nodes_labels   = { "Env" : "dev" }
+node_group_name           = "eks-worker-nodes"
+eks_worker_node_role_name = "eks-worker-role"
+ec2_ami_image_id          = "AL2_x86_64"
+eks_worker_subnet_ids     = ["subnet-0b1d60f6775e82b4f", "subnet-0870552e36549af30"]
