@@ -71,9 +71,48 @@ variable "endpoint_public_access" {
 variable "workers_security_group_count" {
   type        = number
   default     = 0
-  description = "Toatl no of worker security groups"
+  description = "Total no of worker security groups"
 }
 
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "Tags that will be attached to the eks cluster"
+}
+
+variable "additional_cluster_tags" {
+  type        = map(string)
+  default     = {}
+  description = "Additional tags that will be attached to the eks cluster"
+}
+
+
+# -----------------------
+# Eks log group variables
+# -----------------------
+variable "logs_retention_in_days" {
+  type        = number
+  default     = 7
+  description = "No of days up to which the aws eks cluster logs are kept"
+}
+
+variable "skip_destroy" {
+  type        = bool
+  default     = false
+  description = "Set to true if the log group (and any logs it may contain) to be deleted at destroy time"
+}
+
+variable "kms_key_id" {
+  type        = string
+  default     = "false"
+  description = "Id of the KMS key if the eks logs needs to be encrypted"
+}
+
+variable "create_eks_log_group" {
+  type        = number
+  default     = 0
+  description = "Indicate either to create eks log group or not"
+}
 
 # variable "bastion_host_role_arns" {
 #   type        = list(string)

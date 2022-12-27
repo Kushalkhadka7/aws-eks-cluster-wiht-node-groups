@@ -3,6 +3,8 @@ locals {
   certificate_authority_data_list_internal = local.certificate_authority_data_list[0]
   certificate_authority_data_map           = local.certificate_authority_data_list_internal[0]
   certificate_authority_data               = local.certificate_authority_data_map["data"]
+
+  eks_log_group_name = "/aws/eks/${var.eks_cluster_name}/cluster"
 }
 
 # Create an iam policy document to let eks cluster to assume role.
@@ -31,9 +33,9 @@ resource "aws_iam_role" "cluster_role" {
   name               = var.eks_cluster_role_name
   assume_role_policy = join("", data.aws_iam_policy_document.assume_role.*.json)
 
-  tags = {
+  tags = merge({
     "Name" = "eks-cluster-role"
-  }
+  }, var.tags, var.additional_cluster_tags)
 }
 
 # Attach managed eks cluster policy to the IAM role.
@@ -71,10 +73,10 @@ resource "aws_security_group" "eks_cluster_default_sg" {
     protocol         = "-1"
   }
 
-  tags = {
+  tags = merge({
     "Name" = "eks_cluster_defualt_sg"
     Vpc    = var.vpc_id
-  }
+  }, var.tags, var.additional_cluster_tags)
 }
 
 
@@ -116,6 +118,18 @@ resource "aws_security_group_rule" "existing_security_groups" {
   type                     = "ingress"
 }
 
+resource "aws_cloudwatch_log_group" "example" {
+  count = var.create_eks_log_group
+  # The log group name format is /aws/eks/<cluster-name>/cluster
+  # Reference: https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html
+  name              = local.eks_log_group_name
+  retention_in_days = var.logs_retention_in_days
+  skip_destroy      = var.skip_destroy
+  kms_key_id        = var.kms_key_id
+
+  tags = merge(var.tags, var.additional_cluster_tags)
+}
+
 # Finally create the aws eks cluster.
 # Attach above defined role to the cluster.
 # Attach above defined security group to the cluster.
@@ -141,4 +155,9 @@ resource "aws_eks_cluster" "this" {
     aws_iam_role_policy_attachment.eks_cluster_policy,
     aws_iam_role_policy_attachment.eks_service_policy
   ]
+
+  tags = merge({
+    "Name" = "eks-cluster"
+  }, var.tags, var.additional_cluster_tags)
+
 }

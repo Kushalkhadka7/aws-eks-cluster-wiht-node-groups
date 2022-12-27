@@ -103,6 +103,29 @@ variable "bastion_host_role_arns" {
   description = "Bastian host roles arns"
 }
 
+variable "logs_retention_in_days" {
+  type        = number
+  default     = 7
+  description = "No of days up to which the aws eks cluster logs are kept"
+}
+
+variable "skip_destroy" {
+  type        = bool
+  default     = false
+  description = "Set to true if the log group (and any logs it may contain) to be deleted at destroy time"
+}
+
+variable "kms_key_id" {
+  type        = string
+  default     = "false"
+  description = "Id of the KMS key if the eks logs needs to be encrypted"
+}
+
+variable "create_eks_log_group" {
+  type        = number
+  default     = 0
+  description = "Indicate either to create eks log group or not"
+}
 
 # --------------------------.
 # Eks worker nodes variables.
@@ -140,7 +163,7 @@ variable "force_update_version" {
 
 variable "instance_types" {
   type        = list(string)
-  default     = ["t2.micro"]
+  default     = ["t3.medium"]
   description = "Underlying EC2 instance types"
 }
 
@@ -195,4 +218,26 @@ variable "existing_worker_role_policy_arns" {
   type        = list(string)
   default     = []
   description = "List of policy ARNs that will be attached to the workers default role on creation"
+}
+
+variable "update_config" {
+  type = object({
+    max_unavailable            = number
+    max_unavailable_percentage = string
+  })
+
+  default     = null
+  description = "The update_config specifications of the node groups"
+}
+
+variable "ec2_ssh_key" {
+  type        = string
+  default     = ""
+  description = "SSH which is required to run ssh to the worker nodes"
+}
+
+variable "source_security_group_ids" {
+  type        = list(string)
+  default     = []
+  description = "List of security group ids which can ssh to the worker nodes"
 }

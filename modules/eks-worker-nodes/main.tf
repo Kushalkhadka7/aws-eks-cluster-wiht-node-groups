@@ -1,6 +1,6 @@
 locals {
   additional_tags = {
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
   }
 }
 
@@ -25,7 +25,7 @@ resource "aws_iam_role" "eks_worker_nodes_role" {
 
   tags = merge({
     "Name" = "eks-worker-nodes-role"
-  }, local.additional_tags)
+  }, var.tags, var.additional_node_tags, local.additional_tags)
 }
 
 # Attach worker node policy to the eks cluster worker nodes.
@@ -85,8 +85,18 @@ resource "aws_eks_node_group" "this" {
 
   version = var.kubernetes_version
 
-  update_config {
-    max_unavailable = 1
+  dynamic "update_config" {
+    for_each = var.update_config != null ? [var.update_config] : []
+
+    content {
+      max_unavailable            = lookup(update_config.value, "max_unavailable", null)
+      max_unavailable_percentage = lookup(update_config.value, "max_unavailable_percentage", null)
+    }
+  }
+
+  remote_access {
+    ec2_ssh_key               = var.ec2_ssh_key
+    source_security_group_ids = var.source_security_group_ids
   }
 
   depends_on = [
@@ -95,5 +105,5 @@ resource "aws_eks_node_group" "this" {
     aws_iam_role_policy_attachment.amazon_ec2_container_registry_read_only,
   ]
 
-  tags = merge(var.tags, local.additional_tags)
+  tags = merge(var.tags, var.additional_node_tags, local.additional_tags)
 }

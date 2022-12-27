@@ -49,6 +49,11 @@ output "node_group_arn" {
   description = "EKS worker nodes group arn"
 }
 
+output "node_group_id" {
+  value       = module.eks_worker_nodes.node_group_id
+  description = "EKS worker nodes group id"
+}
+
 output "worker_node_resources" {
   value       = module.eks_worker_nodes.worker_node_resources
   description = "EKS worker nodes group resources"

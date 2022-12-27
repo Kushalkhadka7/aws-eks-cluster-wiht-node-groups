@@ -1,0 +1,4 @@
+vendor
+.terraform
+.github
+assets
